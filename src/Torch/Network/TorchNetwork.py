@@ -116,6 +116,17 @@ class TorchNetwork(Module, BaseNetwork):
 
         return sum(p.numel() for p in self.parameters())
 
+    def size_in_MB(self) -> float:
+        if next(self.parameters()).dtype is torch.float32:
+            factor = 4
+        elif next(self.parameters()).dtype is torch.float64:
+            factor = 8
+        elif next(self.parameters()).dtype is torch.float16:
+            factor = 2
+        else:
+            raise ValueError
+        return self.nb_parameters() * factor / 1e6
+
     def transform_from_numpy(self,
                              data: ndarray,
                              grad: bool = True) -> Tensor:
