@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from torch import Tensor, reshape
+from torch import Tensor, reshape, save, load
 from collections import namedtuple
 
 from DeepPhysX.Core.Network.BaseOptimization import BaseOptimization
@@ -71,6 +71,32 @@ class TorchOptimization(BaseOptimization):
         self.optimizer.zero_grad()
         self.loss_value.backward()
         self.optimizer.step()
+
+    def load_parameters(self,
+                        path: str,
+                        device: any = None) -> None:
+        """
+        Load network parameter from path.
+
+        :param path: Path to Network parameters to load.
+        """
+
+        self.optimizer.load_state_dict(load(path, map_location=device))
+        # Update the lr to the current lr
+        for g in self.optimizer.param_groups:
+            g['lr'] = self.lr
+
+    def save_parameters(self,
+                        path: str) -> None:
+        """
+        Saves the optimizer parameters to the path location.
+
+        :param path: Path where to save the parameters.
+        """
+
+        path = path + '.pth'
+        save(self.optimizer.state_dict(), path)
+
 
     def __str__(self) -> str:
 
