@@ -1,7 +1,7 @@
 from unittest import TestCase
 import os
 
-from DeepPhysX.Torch.Network.TorchNetworkConfig import TorchNetworkConfig, TorchNetwork, TorchOptimization, TorchTransformation
+from DeepPhysX.Torch.Network.TorchNetworkConfig import TorchNetworkConfig, TorchNetwork, TorchOptimization, TorchDataTransformation
 
 
 class TestTorchNetworkConfig(TestCase):
@@ -24,7 +24,7 @@ class TestTorchNetworkConfig(TestCase):
         network_config = TorchNetworkConfig()
         self.assertEqual(network_config.network_class, TorchNetwork)
         self.assertEqual(network_config.optimization_class, TorchOptimization)
-        self.assertEqual(network_config.data_transformation_class, TorchTransformation)
+        self.assertEqual(network_config.data_transformation_class, TorchDataTransformation)
         self.assertEqual(network_config.network_dir, None)
         self.assertEqual(network_config.training_stuff, False)
         self.assertEqual(network_config.which_network, 0)
@@ -64,7 +64,7 @@ class TestTorchNetworkConfig(TestCase):
         # TypeError
         self.assertRaises(TypeError, TorchNetworkConfig(data_transformation_class=Test2).create_data_transformation)
         # No error
-        self.assertIsInstance(TorchNetworkConfig().create_data_transformation(), TorchTransformation)
+        self.assertIsInstance(TorchNetworkConfig().create_data_transformation(), TorchDataTransformation)
 
 
 class Test1:

@@ -143,8 +143,8 @@ class TorchNetwork(Module, BaseNetwork):
             data.requires_grad_()
         return data
 
-    def transform_to_numpy(self,
-                           data: Tensor) -> ndarray:
+    def tensor_to_numpy(self,
+                        data: Tensor) -> ndarray:
         """
         Transform and cast data from tensor type to numpy.
 

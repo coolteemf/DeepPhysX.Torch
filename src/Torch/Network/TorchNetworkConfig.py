@@ -1,6 +1,6 @@
 from typing import Any, Optional, Type
 
-from DeepPhysX.Core.Network.BaseNetworkConfig import BaseNetworkConfig, BaseNetwork, BaseOptimization, DataTransformation
+from DeepPhysX.Core.Network.BaseNetworkConfig import BaseNetworkConfig, BaseNetwork, BaseOptimization, BaseTransformation
 from DeepPhysX.Torch.Network.TorchTransformation import TorchTransformation
 from DeepPhysX.Torch.Network.TorchNetwork import TorchNetwork
 from DeepPhysX.Torch.Network.TorchOptimization import TorchOptimization
@@ -75,7 +75,7 @@ class TorchNetworkConfig(BaseNetworkConfig):
 
         return BaseNetworkConfig.create_optimization(self)
 
-    def create_data_transformation(self) -> DataTransformation:
+    def create_data_transformation(self) -> BaseTransformation:
         """
         Create an instance of data_transformation_class with given parameters.
 
