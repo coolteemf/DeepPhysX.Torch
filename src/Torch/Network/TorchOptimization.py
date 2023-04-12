@@ -59,8 +59,7 @@ class TorchOptimization(BaseOptimization):
         :return: Loss value.
         """
 
-        self.loss_value = self.loss(data_pred['prediction'].view(data_opt['ground_truth'].shape),
-                                    data_opt['ground_truth'])
+        self.loss_value = self.loss(data_pred, data_opt)
         return self.transform_loss(data_opt)
 
     def transform_loss(self,
