@@ -25,6 +25,7 @@ class TorchOptimization(BaseOptimization):
         self.scheduler_parameters = config.scheduler_parameters if hasattr(config, 'scheduler_parameters') else None
         self.scheduler = None
         self.schedule_on_epoch = True
+        self.schedule_on_batch = False
         if self.scheduler_class is CyclicLR:
             self.schedule_on_epoch = False
             self.schedule_on_batch = True
@@ -58,7 +59,6 @@ class TorchOptimization(BaseOptimization):
         :param data_opt: Ground truth tensor to be compared with prediction.
         :return: Loss value.
         """
-
         self.loss_value = self.loss(data_pred, data_opt)
         return self.transform_loss(data_opt)
 
