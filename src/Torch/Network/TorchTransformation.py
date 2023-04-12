@@ -40,7 +40,9 @@ class TorchTransformation(BaseTransformation):
         :param data_opt: Data used by the Optimizer.
         :return: Transformed data_pred, data_opt.
         """
-
+        device = data_pred['prediction'].device
+        for k in data_opt.keys():
+            data_opt[k] = data_opt[k].to(device)
         return data_pred, data_opt
 
     @BaseTransformation.check_type
