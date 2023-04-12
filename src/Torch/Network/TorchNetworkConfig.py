@@ -21,7 +21,11 @@ class TorchNetworkConfig(BaseNetworkConfig):
                  lr: Optional[float] = None,
                  require_training_stuff: bool = True,
                  loss: Optional[Any] = None,
-                 optimizer: Optional[Any] = None):
+                 loss_parameters: Type[dict] = None,
+                 optimizer: Optional[Any] = None,
+                 optimizer_parameters: Type[dict] = None,
+                 scheduler_class: Any = None,
+                 scheduler_parameters: dict = None):
         """
         TorchNetworkConfig is a configuration class to parameterize and create TorchNetwork, TorchOptimization and
         TorchTransformation for the NetworkManager.
@@ -55,7 +59,11 @@ class TorchNetworkConfig(BaseNetworkConfig):
                                    lr=lr,
                                    require_training_stuff=require_training_stuff,
                                    loss=loss,
-                                   optimizer=optimizer)
+                                   loss_parameters=loss_parameters,
+                                   optimizer=optimizer,
+                                   optimizer_parameters=optimizer_parameters,
+                                   scheduler_class=scheduler_class,
+                                   scheduler_parameters=scheduler_parameters)
 
     def create_network(self) -> BaseNetwork:
         """

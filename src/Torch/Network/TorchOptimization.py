@@ -1,5 +1,7 @@
+import inspect
 from typing import Dict, Any
 from torch import Tensor, reshape, save, load
+from torch.optim.lr_scheduler import CyclicLR
 from collections import namedtuple
 
 from DeepPhysX.Core.Network.BaseOptimization import BaseOptimization
@@ -17,6 +19,23 @@ class TorchOptimization(BaseOptimization):
         """
 
         BaseOptimization.__init__(self, config)
+        self.optimizer_parameters = config.optimizer_parameters if hasattr(config, 'optimizer_parameters') else None
+        self.loss_parameters = config.loss_parameters if hasattr(config, 'loss_parameters') else None
+        self.scheduler_class = config.scheduler_class if hasattr(config, 'scheduler_class') else None
+        self.scheduler_parameters = config.scheduler_parameters if hasattr(config, 'scheduler_parameters') else None
+        self.scheduler = None
+        self.schedule_on_epoch = True
+        if self.scheduler_class is CyclicLR:
+            self.schedule_on_epoch = False
+            self.schedule_on_batch = True
+
+    def schedule_lr(self, *args, **kwargs):
+        """
+        Adjusts the lr if scheduler is not None. Should be called after train and validate.
+        """
+        if self.scheduler is not None:
+            self.scheduler.step(*args, **kwargs)
+            self.lr = self.optimizer.param_groups[0]['lr']
 
     def set_loss(self) -> None:
         """
@@ -24,7 +43,10 @@ class TorchOptimization(BaseOptimization):
         """
 
         if self.loss_class is not None:
-            self.loss = self.loss_class()
+            if self.loss_parameters is not None:
+                if 'device' in inspect.signature(self.loss_class.__init__).parameters:
+                    self.loss_parameters.update({'device': self.manager.network.device})
+            self.loss = self.loss_class(**({} if self.loss_parameters is None else self.loss_parameters))
 
     def compute_loss(self,
                      data_pred: Dict[str, Tensor],
@@ -55,13 +77,21 @@ class TorchOptimization(BaseOptimization):
     def set_optimizer(self,
                       net: TorchNetwork) -> None:
         """
-        Define an optimization process.
+        | Define an optimization process.
+        | Set the optimizer object with parameters.
+        | Set the lr scheduler with parameters.
 
         :param net: Network whose parameters will be optimized.
         """
 
         if (self.optimizer_class is not None) and (self.lr is not None):
-            self.optimizer = self.optimizer_class(net.parameters(), self.lr)
+            self.optimizer = self.optimizer_class(net.parameters(), self.lr,
+                                                  **({} if self.optimizer_parameters is None else
+                                                     self.optimizer_parameters))
+            if self.scheduler_class is not None:
+                self.scheduler = self.scheduler_class(self.optimizer,
+                                                      **({} if self.scheduler_parameters is None else
+                                                         self.scheduler_parameters))
 
     def optimize(self) -> None:
         """
@@ -80,11 +110,13 @@ class TorchOptimization(BaseOptimization):
 
         :param path: Path to Network parameters to load.
         """
-
-        self.optimizer.load_state_dict(load(path, map_location=device))
+        loaded = load(path, map_location=device)
+        self.optimizer.load_state_dict(loaded)
         # Update the lr to the current lr
         for g in self.optimizer.param_groups:
             g['lr'] = self.lr
+            for k, v in ({} if self.optimizer_parameters is None else self.optimizer_parameters).items():
+                g[k] = v
 
     def save_parameters(self,
                         path: str) -> None:
